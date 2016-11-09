@@ -3,22 +3,20 @@
   <head>
     <title>WallStreet - Dapp</title>
     <link href="/content/css/app.css" rel='stylesheet' type='text/css'>
+    <link href="/content/css/bootstrap.min.css" rel='stylesheet' type='text/css'>
 
     <script src="/lib/angular.min.js"></script>
     <script src="/lib/angular-route.min.js"></script>
     <script src="/app.js"></script>
     <script src="/utils.js"></script>
-
     <script src="/services/accountService.js"></script>
     <script src="/services/assetService.js"></script>
     <script src="/controllers/wallStreetAccountsController.js"></script>
     <script src="/controllers/wallStreetAssetsController.js"></script>
     <script src="/controllers/wallStreetMarketController.js"></script>
-
   </head>
   <body ng-app="wallStreetApp">
     <header ng-include src="'header.html'"></header>
     <main ng-view></main>
-
   </body>
 </html>

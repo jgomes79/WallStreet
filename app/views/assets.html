@@ -1,44 +1,56 @@
 <div ng-init="getAllAssets()">
   <div>
-    <hr>List of assets in WallStreet Market</hr>
-    <table ng-repeat="asset in assets">
+    <h3>List of assets in WallStreet Market</h3>
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Name</th>
+          <th>Symbol</th>
+          <th>AssetType</th>
+        </tr>
+      </thead>
+      <tbody ng-repeat="asset in assets">
       <tr>
-        <td>Id:</td>
         <td>{{asset.id}}</td>
-        <td>Name:</td>
         <td>{{asset.name}}</td>
-        <td>Symbol:</td>
         <td>{{asset.symbol}}</td>
-        <td>AssetType:</td>
         <td>{{asset.assetType}}</td>
-        <td><button id="buyAsset" ng-click="">Buy Asset</button></td>
-        <td><button id="sellAsset" ng-click="">Sell Asset</button></td>
+        <td><button class="btn btn-success" id="buyAsset" ng-click="">Buy Asset</button><button class="btn btn-danger" id="sellAsset" ng-click="">Sell Asset</button></td>
       </tr>
     </table>
   </div>
-  <br>
+  <br><br>
   <div>
-    <hr>Add new asset</hr>
-    <table >
-      <tr>
-        <td>Id:</td>
-        <td><input type="number" id="id" placeholder="Id" ng-model="newAsset.id"/></td>
-      </tr>
-      <tr>
-        <td>Name:</td>
-        <td><input type="text" id="name" placeholder="Name" ng-model="newAsset.name"/></td>
-      </tr>
-      <tr>
-        <td>Symbol:</td>
-        <td><input type="text" id="symbol" placeholder="Symbol" ng-model="newAsset.symbol"/></td>
-      </tr>
-      <tr>
-        <td>AssetType:</td>
-        <td><input type="number" id="assetType" placeholder="0" ng-model="newAsset.assetType"/></td>
-      </tr>
-      <tr>
-        <td><button id="addAsset" ng-click="addAsset()">Add Asset</button></td>
-      </tr>
-    </table>
+    <h3>Add new asset</h3>
+    <div class="form-group row">
+      <label class="col-xs-2 col-form-label">Id</label>
+      <div class="col-xs-10">
+        <input class="form-control" type="number" id="id" placeholder="Id" ng-model="newAsset.id"/>
+      </div>
+    </div>
+    <div class="form-group row">
+      <label class="col-xs-2 col-form-label">Name</label>
+      <div class="col-xs-10">
+        <input class="form-control" type="text" id="name" placeholder="Name" ng-model="newAsset.name"/>
+      </div>
+    </div>
+    <div class="form-group row">
+      <label class="col-xs-2 col-form-label">Symbol</label>
+      <div class="col-xs-10">
+        <input class="form-control" type="text" id="symbol" placeholder="Symbol" ng-model="newAsset.symbol"/>
+      </div>
+    </div>
+    <div class="form-group row">
+      <label class="col-xs-2 col-form-label">AssetType</label>
+      <div class="col-xs-10">
+        <input class="form-control" type="number" id="assetType" placeholder="0" ng-model="newAsset.assetType"/>
+      </div>
+    </div>
+    <div class="form-group row">
+      <div class="offset-sm-2 col-xs-10">
+        <button class="btn btn-primary" id="addAsset" ng-click="addAsset()">Add Asset</button>
+      </div>
+    </div>
   </div>
 </div>

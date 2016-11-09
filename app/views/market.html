@@ -1,46 +1,60 @@
 <div ng-init="getAllMarketOrders()">
   <div>
-    <hr>Active Orders in WallStreet Market</hr>
-    <table ng-repeat="marketOrder in marketOrders">
+    <h3>Active Orders in WallStreet Market</h3>
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th>Order Type</th>
+          <th>From</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Datetime</th>
+        </tr>
+      </thead>
+      <tbody ng-repeat="marketOrder in marketOrders">
       <tr>
-        <td>Order Type:</td>
-        <td>{{marketOrder.orderType}}</td>
-        <td>From:</td>
-        <td>{{marketOrder.from}}</td>
-        <td>Quantity:</td>
-        <td>{{marketOrder.quantity}}</td>
-        <td>Price:</td>
-        <td>{{marketOrder.price}}</td>
-        <td>Datetime:</td>
-        <td>{{marketOrder.datetime}}</td>
-        <td><button id="executeOrder" ng-click="">I want this order</button></td>
-      </tr>
+        <tr>
+          <td>{{marketOrder.orderType}}</td>
+          <td>{{marketOrder.from}}</td>
+          <td>{{marketOrder.quantity}}</td>
+          <td>{{marketOrder.price}}</td>
+          <td>{{marketOrder.datetime}}</td>
+          <td><button class="btn btn-success" id="executeOrder" ng-click="">I want this order</button></td>
+        </tr>
     </table>
   </div>
-  <br>
+  <br><br>
   <div>
-    <hr>Send new order to market</hr>
-    <table>
-      <tr>
-        <td>Order Type:</td>
-        <td><input type="number" id="id" placeholder="0 Buy, 1 Sell" ng-model="newOrder.orderType"/></td>
-      </tr>
-      <tr>
-        <td>AssetId:</td>
-        <td><input type="number" id="name" placeholder="1" ng-model="newOrder.assetId"/></td>
-      </tr>
-      <tr>
-        <td>Quantity:</td>
-        <td><input type="number" id="symbol" placeholder="0" ng-model="newOrder.quantity"/></td>
-      </tr>
-      <tr>
-        <td>Price:</td>
-        <td><input type="number" id="assetType" placeholder="0" ng-model="newOrder.price"/></td>
-      </tr>
-      <tr>
-        <td><button id="postOrderToMarket" ng-click="postOrderToMarket()">Post New Order</button></td>
-      </tr>
-    </table>
+    <h3>Send new order to market</h3>
+      <div class="form-group row">
+        <label class="col-xs-2 col-form-label">Order Type</label>
+        <div class="col-xs-10">
+          <input type="number" id="id" placeholder="0 Buy, 1 Sell" ng-model="newOrder.orderType"/>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-xs-2 col-form-label">AssetId</label>
+        <div class="col-xs-10">
+          <input type="number" id="name" placeholder="1" ng-model="newOrder.assetId"/>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-xs-2 col-form-label">Quantity</label>
+        <div class="col-xs-10">
+          <input type="number" id="symbol" placeholder="0" ng-model="newOrder.quantity"/>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-xs-2 col-form-label">Price</label>
+        <div class="col-xs-10">
+          <input type="number" id="assetType" placeholder="0" ng-model="newOrder.price"/>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-xs-10">
+          <button class="btn btn-primary" id="postOrderToMarket" ng-click="postOrderToMarket()">Post New Order</button>
+        </div>
+      </div>
   </div>
 </div>
 
