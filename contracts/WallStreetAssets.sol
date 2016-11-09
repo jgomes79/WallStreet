@@ -38,13 +38,13 @@ contract WallStreetAssets is WallStreetAssetsI {
     return true;
   }
 
-  function getAsset(uint id) returns (AssetType assetType, string name, string symbol) {
+  function getAsset(uint id) constant returns (AssetType assetType, string name, string symbol) {
     Asset asset = assets[id];
 
     return (asset.assetType,asset.name,asset.symbol);
   }
 
-  function getAssetsCount() returns (uint count) {
+  function getAssetsCount() constant returns (uint count) {
     return assetIds.length;
   }
 }

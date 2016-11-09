@@ -12,9 +12,12 @@ contract WallStreetCoin is WallStreetCoinI {
 	event OnSendMoneyBetweenAccounts(address from, address to, uint256 amount);
 
 	function WallStreetCoin() {
+		// Initialize the contract account with value for testing
 		assetsInAccounts[tx.origin][1] = 10000;
 		assetsInAccounts[tx.origin][2] = 10000;
 		assetsInAccounts[tx.origin][3] = 10000;
+
+		balancesInAccounts[tx.origin] = 100000000;
 	}
 
 	function depositMoneyToAccount(address from, uint256 amount) returns (bool successful) {

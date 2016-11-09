@@ -1,3 +1,5 @@
+
+
 app.controller("wallStreetAccountsController", [ '$scope', '$location', '$http', '$q', '$window', '$timeout', 'AccountService', function($scope, $location, $http, $q, $window, $timeout, AccountService) {
 
   $scope.accounts = [];

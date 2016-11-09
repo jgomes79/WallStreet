@@ -32,7 +32,8 @@ module.exports = {
     "lib/angular-route.min.js": "lib/angular-route.min.js",
 
     "services/": "services/",
-    "services/accountService.js": "services/accountService.js"
+    "services/accountService.js": "services/accountService.js",
+    "services/assetService.js": "services/assetService.js"
   },
   rpc: {
     host: "localhost",

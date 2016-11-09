@@ -1,6 +1,5 @@
 pragma solidity ^0.4.2;
 
-import "WallStreetAssetsI.sol";
 import "WallStreetCoinI.sol";
 
 contract WallStreetMarket {
@@ -17,24 +16,21 @@ contract WallStreetMarket {
   }
 
   mapping (uint => MarketOrder[]) public listMarketOrders;
-  mapping (uint => uint) public listAssetsInMarketCount;
 
   address public wallStreetCoin;
-  address public wallStreetAssets;
 
   event OnOrderPostedToTheMarket(OrderType orderType, uint assetId, uint quantity, uint price);
   event OnExecuteOrderDirectInTheMarket(OrderType orderType, uint assetId, uint quantity, uint price);
 
-	function WallStreetMarket(address _wallStreetAssets, address _wallStreetCoin) {
-    wallStreetAssets = _wallStreetAssets;
+	function WallStreetMarket(address _wallStreetCoin) {
     wallStreetCoin = _wallStreetCoin;
 	}
 
-  function getMarketOrdersCountByAsset(uint assetId) returns (uint count) {
-    return listAssetsInMarketCount[assetId];
+  function getMarketOrdersCountByAsset(uint assetId) constant returns (uint count) {
+    return listMarketOrders[assetId].length;
   }
 
-  function getMarketOrderByAsset(uint assetId, uint index) returns (OrderType orderType, address from, uint quantity, uint price, uint datetime) {
+  function getMarketOrderByAsset(uint assetId, uint index) constant returns (OrderType orderType, address from, uint quantity, uint price, uint datetime) {
     MarketOrder mo = listMarketOrders[assetId][index];
     return (mo.orderType,mo.from,mo.quantity,mo.price,mo.datetime);
   }
@@ -66,7 +62,6 @@ contract WallStreetMarket {
                                 quantity: quantity,
                                 price: price,
                                 datetime: now }));
-      listAssetsInMarketCount[assetId]++;
 
       // Notify the order
       OnOrderPostedToTheMarket(orderType,assetId,quantity,price);
@@ -112,10 +107,10 @@ contract WallStreetMarket {
     return true;
   }
 
-  function lookForBestPrice(OrderType orderType, uint assetId) returns (uint index) {
+  function lookForBestPrice(OrderType orderType, uint assetId) constant returns (uint index) {
     uint iBestPrice = 0;
     uint iIndex = 0;
-    uint iCount = listAssetsInMarketCount[assetId];
+    uint iCount = listMarketOrders[assetId].length;
 
     for (uint i=0;i<iCount;i++) {
       MarketOrder mm = listMarketOrders[assetId][i];
@@ -138,8 +133,8 @@ contract WallStreetMarket {
     return iIndex;
   }
 
-  function lookforMatch(OrderType orderType, uint assetId, uint quantity, uint price) returns (bool successful, uint index) {
-    uint iCount = listAssetsInMarketCount[assetId];
+  function lookforMatch(OrderType orderType, uint assetId, uint quantity, uint price) constant returns (bool successful, uint index) {
+    uint iCount = listMarketOrders[assetId].length;
 
     for (uint i=0;i<iCount;i++) {
       MarketOrder mm = listMarketOrders[assetId][i];
