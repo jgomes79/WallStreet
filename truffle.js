@@ -3,7 +3,6 @@ module.exports = {
     "index.html": "index.html",
     "header.html": "header.html",
     "app.js": "app.js",
-    "services.js": "services.js",
     "utils.js": "utils.js",
 
     "views/": "views/",

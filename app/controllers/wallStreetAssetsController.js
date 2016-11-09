@@ -11,10 +11,13 @@ app.controller("wallStreetAssetsController", ['$scope', '$location', '$http', '$
 				return web3.eth.getTransactionReceiptMined(tx);
 			})
 			.then(function (receipt) {
-				console.log("asset added");
-        $scope.getAllAssets();
-        $scope.apply();
-			});
+          console.log("Asset added");
+          $scope.getAllAssets();
+          $scope.$apply();
+			})
+      .catch(function (e) {
+        console.log("error adding an asset: " + e);
+      });
 	};
 
   $scope.removeAsset = function(id) {
