@@ -1,4 +1,4 @@
-var app = angular.module('wallStreetApp', ['ngRoute']);
+var app = angular.module('wallStreetApp', ['ngRoute','ngDialog']);
 
 app.config(['$routeProvider', function($routeProvider) {
 

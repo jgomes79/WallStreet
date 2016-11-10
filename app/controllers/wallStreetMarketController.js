@@ -1,4 +1,4 @@
-app.controller("wallStreetMarketController", ['$scope', '$location', '$http', '$q', '$window', '$timeout', 'AccountService', 'AssetService', function($scope, $location, $http, $q, $window, $timeout, AccountService, AssetService) {
+app.controller("wallStreetMarketController", ['$scope', '$location', '$http', '$q', '$rootScope', 'AccountService', 'AssetService', function($scope, $location, $http, $q, $rootScope, AccountService, AssetService) {
 
   $scope.marketOrders = [];
   $scope.newOrder;
@@ -39,6 +39,10 @@ app.controller("wallStreetMarketController", ['$scope', '$location', '$http', '$
         console.error(e);
       });
   }
+
+  $rootScope.$on("callPostOrderToMarket", function(){
+    $scope.postOrderToMarket();
+  });
 
   $scope.postOrderToMarket = function() {
     WallStreetMarket.deployed().postOrderToMarket($scope.newOrder.orderType,$scope.newOrder.assetId,$scope.newOrder.quantity,$scope.newOrder.price, {from: AccountService.getActiveAccount(), gas: 3000000})

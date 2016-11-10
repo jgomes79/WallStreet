@@ -9,6 +9,7 @@ module.exports = {
     "views/assets.html": "views/assets.html",
     "views/market.html": "views/market.html",
     "views/accounts.html": "views/accounts.html",
+    "views/popupAddOrder.html": "views/popupAddOrder.html",
 
     "controllers/": "controllers/",
     "controllers/wallStreetAccountsController.js": "controllers/wallStreetAccountsController.js",
@@ -16,19 +17,19 @@ module.exports = {
     "controllers/wallStreetCoinController.js": "controllers/wallStreetCoinController.js",
     "controllers/wallStreetMarketController.js": "controllers/wallStreetMarketController.js",
 
-    "app.css": [
-      "content/css/app.css"
-    ],
-
     "content/": "content/",
     "content/css/": "content/css/",
     "content/images/": "content/images/",
 
     "content/css/app.css": "content/css/app.css",
+    "content/css/bootstrap.min.css": "content/css/bootstrap.min.css",
+    "content/css/ngDialog.min.css": "content/css/ngDialog.min.css",
+    "content/css/ngDialog-theme-plain.min.css": "content/css/ngDialog-theme-plain.min.css",
 
     "lib/": "lib/",
     "lib/angular.min.js": "lib/angular.min.js",
     "lib/angular-route.min.js": "lib/angular-route.min.js",
+    "lib/ngDialog.min.js": "lib/ngDialog.min.js",
 
     "services/": "services/",
     "services/accountService.js": "services/accountService.js",
