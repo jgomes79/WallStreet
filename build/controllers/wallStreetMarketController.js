@@ -1,3 +1,5 @@
+
+
 app.controller("wallStreetMarketController", ['$scope', '$location', '$http', '$q', 'AccountService', 'AssetService', 'MarketService', function($scope, $location, $http, $q, AccountService, AssetService, MarketService) {
 
   $scope.marketOrders = [];

@@ -17,6 +17,9 @@ contract WallStreetAssets is WallStreetAssetsI {
 	}
 
   function addAsset(AssetType assetType, string name, string symbol, uint id) fromOwner returns (bool successful) {
+    // Check the asset id is valid
+    if (assets[id].id == id) return false;
+
     assets[id] = Asset({
                   assetType: assetType,
                   name: name,

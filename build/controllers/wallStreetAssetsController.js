@@ -1,3 +1,5 @@
+
+
 app.controller("wallStreetAssetsController", ['$scope', '$location', '$http', '$q', '$window', '$timeout', 'AccountService', 'AssetService', function($scope, $location, $http, $q, $window, $timeout, AccountService, AssetService) {
 
   $scope.assets = [];

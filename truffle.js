@@ -33,7 +33,8 @@ module.exports = {
 
     "services/": "services/",
     "services/accountService.js": "services/accountService.js",
-    "services/assetService.js": "services/assetService.js"
+    "services/assetService.js": "services/assetService.js",
+    "services/marketService.js": "services/marketService.js"
   },
   rpc: {
     host: "localhost",
