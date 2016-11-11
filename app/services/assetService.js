@@ -7,6 +7,7 @@ app.factory('AssetService', function() {
     setAssetsCount: setAssetsCount,
     getAssetsIds: getAssetsIds,
     setAssetsIds: setAssetsIds,
+    getAssetDescription: getAssetDescription
   };
 
   function setAssetsCount(count) {
@@ -23,5 +24,11 @@ app.factory('AssetService', function() {
 
   function getAssetsIds() {
     return assetsIds;
+  }
+
+  function getAssetDescription(id) {
+    if (id == 0)  return 'Stock';
+    if (id == 1)  return 'Option';
+    if (id == 2)  return 'Future';
   }
 });
