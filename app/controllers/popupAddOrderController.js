@@ -3,8 +3,11 @@ app.controller('popupAddOrderController', ['$scope','ngDialog','AccountService',
   $scope.varDialog;
   $scope.newOrder;
   $scope.assetId;
+  $scope.orderType;
 
-  $scope.openModal = function(assetId) {
+  $scope.openModal = function(orderType,assetId) {
+
+    $scope.orderType = orderType;
     $scope.assetId = assetId;
     $scope.varDialog = ngDialog.open({
       template: 'views/popupAddOrder.html',
@@ -15,7 +18,7 @@ app.controller('popupAddOrderController', ['$scope','ngDialog','AccountService',
   };
 
   $scope.sendOrder = function() {
-    MarketService.postOrderToMarket($scope.newOrder.orderType,$scope.assetId,$scope.newOrder.quantity,$scope.newOrder.price,{from: AccountService.getActiveAccount(), gas: 3000000});
+    MarketService.postOrderToMarket($scope.orderType,$scope.assetId,$scope.newOrder.quantity,$scope.newOrder.price,{from: AccountService.getActiveAccount(), gas: 3000000});
   };
 
   $scope.closeModal = function() {

@@ -1,19 +1,38 @@
-app.controller("wallStreetAssetsController", ['$scope', '$location', '$http', '$q', '$window', '$timeout', 'AccountService', 'AssetService', function($scope, $location, $http, $q, $window, $timeout, AccountService, AssetService) {
+app.controller("wallStreetAssetsController", ['$scope', '$location', '$http', '$q', '$window', '$timeout', 'AccountService', 'AssetService','Notification', function($scope, $location, $http, $q, $window, $timeout, AccountService, AssetService, Notification) {
 
   $scope.assets = [];
   $scope.asset;
   $scope.newAsset;
 
+  event OnLogAssetExists(uint id);
+	event OnLogAssetAdded(AssetType assetType, string name, string symbol, uint id);
+  event OnLogAssetRemoved(uint id);
+
 	$scope.addAsset = function() {
-    console.log()
-		WallStreetAssets.deployed().addAsset($scope.newAsset.assetType,$scope.newAsset.name,$scope.newAsset.symbol,$scope.newAsset.id, {from: AccountService.getActiveAccount(), gas: 3000000})
+    var wallStreetAssets = WallStreetAssets.deployed();
+    var events = wallStreetAssets.allEvents('latest',function(error, log) {
+      if (!error) {
+        switch (log.event) {
+          case 'OnLogAssetExists':
+            Notification("There's an asset with the same id");
+            break;
+          case 'OnLogAssetAdded':
+            Notification("Asset added");
+            $scope.getAllAssets();
+            $scope.$apply();
+            break;
+          default:
+            break;
+      }
+      events.stopWatching();
+    });
+
+		wallStreetAssets.addAsset($scope.newAsset.assetType,$scope.newAsset.name,$scope.newAsset.symbol,$scope.newAsset.id, {from: AccountService.getActiveAccount(), gas: 3000000})
 			.then(function (tx) {
 				return web3.eth.getTransactionReceiptMined(tx);
 			})
 			.then(function (receipt) {
           console.log("Asset added");
-          $scope.getAllAssets();
-          $scope.$apply();
 			})
       .catch(function (e) {
         console.log("error adding an asset: " + e);
@@ -21,7 +40,17 @@ app.controller("wallStreetAssetsController", ['$scope', '$location', '$http', '$
 	};
 
   $scope.removeAsset = function(id) {
-    WallStreetAssets.deployed().removeAsset(id)
+    var wallStreetAssets = WallStreetAssets.deployed();
+    var events = wallStreetAssets.allEvents('latest',function(error, log) {
+      if (!error) {
+          Notification("Asset removed");
+          $scope.getAllAssets();
+          $scope.$apply();
+      }
+      events.stopWatching();
+    });
+
+    wallStreetAssets.removeAsset(id)
       .then(function (tx) {
         return web3.eth.getTransactionReceiptMined(tx);
       })

@@ -18,8 +18,8 @@
         <td>{{getAssetTypeDescription(asset.assetType)}}</td>
         <td>
             <button ng-controller="wallStreetMarketController" class="btn btn-success" id="buyBestAsset" ng-click="executeOrderDirectInTheMarket(0,asset.id)">Search best to Buy</button>
-            <button ng-controller="popupAddOrderController" class="btn btn-success" id="buyAsset" ng-click="openModal(asset.id)">Buy Asset</button>
-            <button ng-controller="popupAddOrderController" class="btn btn-danger" id="sellAsset" ng-click="openModal()">Sell Asset</button>
+            <button ng-controller="popupAddOrderController" class="btn btn-success" id="buyAsset" ng-click="openModal(0,asset.id)">Buy Asset</button>
+            <button ng-controller="popupAddOrderController" class="btn btn-danger" id="sellAsset" ng-click="openModal(1,asset.id)">Sell Asset</button>
             <button ng-controller="wallStreetMarketController" class="btn btn-danger" id="sellBestAsset" ng-click="executeOrderDirectInTheMarket(1,asset.id)">Search best to Sell</button>
         </td>
       </tr>

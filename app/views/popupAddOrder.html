@@ -1,12 +1,15 @@
 <div class="ngdialog-message">
     <h3>New order to the market</h3>
-    <div class="form-group row">
+    <div class="form-group row" ng-controller="wallStreetMarketController">
       <label class="col-xs-2 col-form-label">Type</label>
       <div class="col-xs-10">
-        <select ng-model="newOrder.orderType">
-          <option value =0>Buy</option>
-          <option value =1>Sell</option>
-        </select>
+        <label class="col-xs-2 col-form-label">{{getOrderTypeDescription(orderType)}}</label>
+      </div>
+    </div>
+    <div class="form-group row" ng-controller="wallStreetMarketController">
+      <label class="col-xs-2 col-form-label">Asset</label>
+      <div class="col-xs-10">
+        <label class="col-xs-2 col-form-label">{{getAssetNameById(assetId)}}</label>
       </div>
     </div>
     <div class="form-group row">

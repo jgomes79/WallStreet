@@ -19,8 +19,10 @@ contract WallStreetMarket {
 
   address public wallStreetCoin;
 
-  event OnOrderPostedToTheMarket(OrderType orderType, uint assetId, uint quantity, uint price);
-  event OnExecuteOrder(OrderType orderType, uint assetId, uint quantity, uint price);
+  event OnLogNotEnoughMoney();
+  event OnLogNotEnoughAssets();
+  event OnLogOrderPostedToTheMarket(OrderType orderType, uint assetId, uint quantity, uint price);
+  event OnLogExecuteOrder(OrderType orderType, uint assetId, uint quantity, uint price);
 
 	function WallStreetMarket(address _wallStreetCoin) {
     wallStreetCoin = _wallStreetCoin;
@@ -43,10 +45,16 @@ contract WallStreetMarket {
 
     if (orderType == OrderType.Buy) {
       // Check if the buyer has enough money
-      if (WallStreetCoinI(wallStreetCoin).getMoneyInAccount(msg.sender) < operationPrice) return false;
+      if (WallStreetCoinI(wallStreetCoin).getMoneyInAccount(msg.sender) < operationPrice) {
+        OnLogNotEnoughMoney();
+        return false;
+      }
     } else {
       // Check if the seller has the asset amount
-      if (WallStreetCoinI(wallStreetCoin).getAssetInAccount(msg.sender,assetId) < quantity) return false;
+      if (WallStreetCoinI(wallStreetCoin).getAssetInAccount(msg.sender,assetId) < quantity) {
+        OnLogNotEnoughAssets();
+        return false;
+      }
     }
 
     // Check for a match in the Market
@@ -64,7 +72,7 @@ contract WallStreetMarket {
                                 datetime: now }));
 
       // Notify the order
-      OnOrderPostedToTheMarket(orderType,assetId,quantity,price);
+      OnLogOrderPostedToTheMarket(orderType,assetId,quantity,price);
     }
   }
 
@@ -82,8 +90,10 @@ contract WallStreetMarket {
 
     if (orderType == OrderType.Buy) {
       // Check if the buyer has enough money
-      if (WallStreetCoinI(wallStreetCoin).getMoneyInAccount(msg.sender) < operationPrice) return false;
-
+      if (WallStreetCoinI(wallStreetCoin).getMoneyInAccount(msg.sender) < operationPrice) {
+        OnLogNotEnoughMoney();
+        return false;
+      }
       // TODO. Refactor this to do it dependent beetween results
       if (!WallStreetCoinI(wallStreetCoin).sendMoneyBetweenAccounts(msg.sender,mm.from,operationPrice)) return false;
 
@@ -91,18 +101,20 @@ contract WallStreetMarket {
 
     } else {
       // Check if the seller has the asset amount
-      if (WallStreetCoinI(wallStreetCoin).getAssetInAccount(msg.sender,assetId) < mm.quantity) return false;
-
+      if (WallStreetCoinI(wallStreetCoin).getAssetInAccount(msg.sender,assetId) < mm.quantity) {
+        OnLogNotEnoughAssets();
+        return false;
+      }
       // TODO. Refactor this to do it dependent beetween results
       if (!WallStreetCoinI(wallStreetCoin).sendMoneyBetweenAccounts(mm.from,msg.sender,operationPrice)) return false;
 
       if (!WallStreetCoinI(wallStreetCoin).moveAssetFromAccounts(msg.sender,mm.from,assetId,mm.quantity)) return false;
     }
 
+    OnLogExecuteOrder(orderType, assetId, mm.quantity, mm.price);
+
     // The operation is done. Remove it from market
     delete listMarketOrders[assetId][iIndex];
-
-    OnExecuteOrder(orderType, assetId, mm.quantity, mm.price);
 
     return true;
   }

@@ -1,4 +1,4 @@
-app.controller("wallStreetAccountsController", [ '$scope', '$location', '$http', '$q', '$window', '$timeout', 'AccountService', function($scope, $location, $http, $q, $window, $timeout, AccountService) {
+app.controller("wallStreetAccountsController", [ '$scope', '$location', '$http', '$q', '$window', '$timeout', 'AccountService','Notification', function($scope, $location, $http, $q, $window, $timeout, AccountService, Notification) {
 
   $scope.accounts = [];
   $scope.activeAccount;
@@ -36,13 +36,23 @@ app.controller("wallStreetAccountsController", [ '$scope', '$location', '$http',
   };
 
   $scope.depositMoney = function() {
-    WallStreetCoin.deployed().depositMoneyToAccount($scope.activeAccount,$scope.amountToAdd,{from:$scope.activeAccount, gas: 3000000})
+    var wallStreetCoin = WallStreetCoin.deployed();
+    var events = wallStreetCoin.allEvents('latest',function(error, log) {
+      if (!error) {
+        var args = log.args;
+        var amount = args.amount;
+        Notification("Added " + amount + " to account");
+        $scope.getAccountBalance();
+      }
+      events.stopWatching();
+    });
+
+    wallStreetCoin.depositMoneyToAccount($scope.activeAccount,$scope.amountToAdd,{from:$scope.activeAccount, gas: 3000000})
       .then(function (tx) {
         return web3.eth.getTransactionReceiptMined(tx);
       })
       .then(function (receipt) {
-        console.log("balance changed");
-        $scope.getAccountBalance();
+        console.log("Deposit money transaction completed");
       })
       .catch(function (e) {
         console.log("error changing balance: " + e);

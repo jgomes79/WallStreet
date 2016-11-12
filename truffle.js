@@ -14,7 +14,6 @@ module.exports = {
     "controllers/": "controllers/",
     "controllers/wallStreetAccountsController.js": "controllers/wallStreetAccountsController.js",
     "controllers/wallStreetAssetsController.js": "controllers/wallStreetAssetsController.js",
-    "controllers/wallStreetCoinController.js": "controllers/wallStreetCoinController.js",
     "controllers/wallStreetMarketController.js": "controllers/wallStreetMarketController.js",
 
     "content/": "content/",
@@ -25,11 +24,13 @@ module.exports = {
     "content/css/bootstrap.min.css": "content/css/bootstrap.min.css",
     "content/css/ngDialog.min.css": "content/css/ngDialog.min.css",
     "content/css/ngDialog-theme-plain.min.css": "content/css/ngDialog-theme-plain.min.css",
+    "content/css/angular-ui-notification.min.css": "content/css/angular-ui-notification.min.css",
 
     "lib/": "lib/",
     "lib/angular.min.js": "lib/angular.min.js",
     "lib/angular-route.min.js": "lib/angular-route.min.js",
     "lib/ngDialog.min.js": "lib/ngDialog.min.js",
+    "lib/angular-ui-notification.min.js": "lib/angular-ui-notification.min.js",
 
     "services/": "services/",
     "services/accountService.js": "services/accountService.js",

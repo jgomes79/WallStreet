@@ -7,9 +7,11 @@ contract WallStreetCoin is WallStreetCoinI {
 	mapping (address => uint256) balancesInAccounts;
 	mapping (address => mapping (uint => uint)) assetsInAccounts;
 
-	event OnMoneyDepositedInAccount(address from, uint256 amount);
-	event OnMoneyWithdrawnFromAccount(address from, uint256 amount);
-	event OnSendMoneyBetweenAccounts(address from, address to, uint256 amount);
+	event OnLogAmmountCantBeZero();
+	event OnLogNotEnoughMoney();
+	event OnLogMoneyDepositedInAccount(address from, uint256 amount);
+	event OnLogMoneyWithdrawnFromAccount(address from, uint256 amount);
+	event OnLogSendMoneyBetweenAccounts(address from, address to, uint256 amount);
 
 	function WallStreetCoin() {
 		// Initialize the contract account with value for testing
@@ -21,29 +23,38 @@ contract WallStreetCoin is WallStreetCoinI {
 	}
 
 	function depositMoneyToAccount(address from, uint256 amount) returns (bool successful) {
-		if (amount <= 0) return false;
+		if (amount <= 0) {
+			OnLogAmmountCantBeZero();
+			return false;
+		}
 
 		balancesInAccounts[from] += amount;
-		OnMoneyDepositedInAccount(from, amount);
+		OnLogMoneyDepositedInAccount(from, amount);
 
 		return true;
 	}
 
 	function withdrawalMoneyFromAccount(address from, uint256 amount) returns (bool successful) {
-		if (amount > balancesInAccounts[from]) return false;
+		if (amount > balancesInAccounts[from]) {
+			OnLogNotEnoughMoney();
+			return false;
+		}
 
 		balancesInAccounts[from] -= amount;
-		OnMoneyWithdrawnFromAccount(from, amount);
+		OnLogMoneyWithdrawnFromAccount(from, amount);
 
 		return true;
 	}
 
 	function sendMoneyBetweenAccounts(address from, address receiver, uint256 amount) returns (bool sufficient) {
-		if (balancesInAccounts[from] < amount) return false;
+		if (balancesInAccounts[from] < amount) {
+			OnLogNotEnoughMoney();
+			return false;
+		}
 
 		balancesInAccounts[from] -= amount;
 		balancesInAccounts[receiver] += amount;
-		OnSendMoneyBetweenAccounts(from, receiver, amount);
+		OnLogSendMoneyBetweenAccounts(from, receiver, amount);
 
 		return true;
 	}

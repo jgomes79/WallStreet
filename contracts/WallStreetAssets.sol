@@ -7,8 +7,9 @@ contract WallStreetAssets is WallStreetAssetsI {
   mapping(uint => Asset) public assets;
   uint[] public assetIds;
 
-	event LogAssetAdded(AssetType assetType, string name, string symbol, uint id);
-  event LogAssetRemoved(uint id);
+  event OnLogAssetExists(uint id);
+	event OnLogAssetAdded(AssetType assetType, string name, string symbol, uint id);
+  event OnLogAssetRemoved(uint id);
 
 	function WallStreetAssets() {
     addAsset(AssetType.Stock,"Apple","APPL",1);
@@ -18,7 +19,10 @@ contract WallStreetAssets is WallStreetAssetsI {
 
   function addAsset(AssetType assetType, string name, string symbol, uint id) fromOwner returns (bool successful) {
     // Check the asset id is valid
-    if (assets[id].id == id) return false;
+    if (assets[id].id == id) {
+      OnLogAssetExists(id);
+      return false;
+    }
 
     assets[id] = Asset({
                   assetType: assetType,
@@ -27,7 +31,7 @@ contract WallStreetAssets is WallStreetAssetsI {
                   id: id});
     assetIds.push(id);
 
-    LogAssetAdded(assetType,name,symbol,id);
+    OnLogAssetAdded(assetType,name,symbol,id);
 
     return true;
   }
@@ -36,7 +40,7 @@ contract WallStreetAssets is WallStreetAssetsI {
     delete assets[id];
     delete assetIds[id];
 
-    LogAssetRemoved(id);
+    OnLogAssetRemoved(id);
 
     return true;
   }
