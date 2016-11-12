@@ -13,16 +13,18 @@ contract WallStreetMarket {
     uint quantity;
     uint price;
     uint datetime;
+    bytes32 orderId;
   }
 
+  // Mapping AssetId => MarketOrders array
   mapping (uint => MarketOrder[]) public listMarketOrders;
 
   address public wallStreetCoin;
 
   event OnLogNotEnoughMoney();
   event OnLogNotEnoughAssets();
-  event OnLogOrderPostedToTheMarket(OrderType orderType, uint assetId, uint quantity, uint price);
-  event OnLogExecuteOrder(OrderType orderType, uint assetId, uint quantity, uint price);
+  event OnLogOrderPostedToTheMarket(OrderType orderType, uint assetId, uint quantity, uint price, bytes32 orderId);
+  event OnLogExecuteOrder(OrderType orderType, uint assetId, uint quantity, uint price, bytes32 orderId);
 
 	function WallStreetMarket(address _wallStreetCoin) {
     wallStreetCoin = _wallStreetCoin;
@@ -32,9 +34,9 @@ contract WallStreetMarket {
     return listMarketOrders[assetId].length;
   }
 
-  function getMarketOrderByAsset(uint assetId, uint index) constant returns (OrderType orderType, address from, uint quantity, uint price, uint datetime) {
+  function getMarketOrderByAsset(uint assetId, uint index) constant returns (OrderType orderType, address from, uint quantity, uint price, uint datetime, bytes32 orderId) {
     MarketOrder mo = listMarketOrders[assetId][index];
-    return (mo.orderType,mo.from,mo.quantity,mo.price,mo.datetime);
+    return (mo.orderType,mo.from,mo.quantity,mo.price,mo.datetime,mo.orderId);
   }
 
   // Insert a new order in the market. If the order find a match (example I want to buy an asset for 5 and there's a sell
@@ -58,43 +60,45 @@ contract WallStreetMarket {
     }
 
     // Check for a match in the Market
-    var (ok,i) = lookforMatch(orderType,assetId,quantity,price);
+    var (ok,idOrder) = lookforMatch(orderType,assetId,quantity,price);
     if (ok) {
       // Order matched. Execute the operation
-      executeOrder(orderType,assetId,i);
+      executeOrder(assetId,idOrder);
     } else {
       // No match. Post to the martket
+      var orderId = sha3(msg.sender,now,assetId,quantity,price);
       listMarketOrders[assetId].push(MarketOrder({
                                 orderType: orderType,
-                                from: tx.origin,
+                                from: msg.sender,
                                 quantity: quantity,
                                 price: price,
-                                datetime: now }));
+                                datetime: now,
+                                orderId: orderId}));
 
       // Notify the order
-      OnLogOrderPostedToTheMarket(orderType,assetId,quantity,price);
+      OnLogOrderPostedToTheMarket(orderType,assetId,quantity,price,orderId);
     }
   }
 
   function executeOrderDirectInTheMarket(OrderType orderType, uint assetId) returns (bool successful) {
     // Calculate the operation money amount
-    uint iIndex = lookForBestPrice(orderType,assetId);
-    executeOrder(orderType,assetId,iIndex);
+    bytes32 idOrder = lookForBestPrice(orderType,assetId);
+    executeOrder(assetId,idOrder);
 
     return true;
   }
 
-  function executeOrder (OrderType orderType, uint assetId, uint iIndex) returns (bool successful) {
-    MarketOrder mm = listMarketOrders[assetId][iIndex];
+  function executeOrder (uint assetId, bytes32 orderId) returns (bool successful) {
+    var (index,mm) = getMarketOrderById(assetId,orderId);
     uint operationPrice = mm.price * mm.quantity; // TODO. Optimization to search in multiple operation posted in order to get the best quantity to fit
 
-    if (orderType == OrderType.Buy) {
+    if (mm.orderType == OrderType.Buy) {
       // Check if the buyer has enough money
       if (WallStreetCoinI(wallStreetCoin).getMoneyInAccount(msg.sender) < operationPrice) {
         OnLogNotEnoughMoney();
         return false;
       }
-      // TODO. Refactor this to do it dependent beetween results
+
       if (!WallStreetCoinI(wallStreetCoin).sendMoneyBetweenAccounts(msg.sender,mm.from,operationPrice)) return false;
 
       if (!WallStreetCoinI(wallStreetCoin).moveAssetFromAccounts(mm.from,msg.sender,assetId,mm.quantity)) return false;
@@ -105,23 +109,24 @@ contract WallStreetMarket {
         OnLogNotEnoughAssets();
         return false;
       }
-      // TODO. Refactor this to do it dependent beetween results
+
       if (!WallStreetCoinI(wallStreetCoin).sendMoneyBetweenAccounts(mm.from,msg.sender,operationPrice)) return false;
 
       if (!WallStreetCoinI(wallStreetCoin).moveAssetFromAccounts(msg.sender,mm.from,assetId,mm.quantity)) return false;
     }
 
-    OnLogExecuteOrder(orderType, assetId, mm.quantity, mm.price);
+    OnLogExecuteOrder(mm.orderType, assetId, mm.quantity, mm.price, mm.orderId);
 
     // The operation is done. Remove it from market
-    delete listMarketOrders[assetId][iIndex];
+    // TODO. Clean array from empty positions to avoid 0x000000 registries
+    delete listMarketOrders[assetId][index];
 
     return true;
   }
 
-  function lookForBestPrice(OrderType orderType, uint assetId) constant returns (uint index) {
+  function lookForBestPrice(OrderType orderType, uint assetId) constant returns (bytes32 id) {
     uint iBestPrice = 0;
-    uint iIndex = 0;
+    bytes32 orderId;
     uint iCount = listMarketOrders[assetId].length;
 
     for (uint i=0;i<iCount;i++) {
@@ -132,29 +137,43 @@ contract WallStreetMarket {
       if (orderType == OrderType.Buy) {
         if (mmPrice < iBestPrice) {
           iBestPrice = mmPrice;
-          iIndex = i;
+          orderId = mm.orderId;
         }
       } else {
         if (mmPrice > iBestPrice) {
           iBestPrice = mmPrice;
-          iIndex = i;
+          orderId = mm.orderId;
         }
       }
     }
 
-    return iIndex;
+    return orderId;
   }
 
-  function lookforMatch(OrderType orderType, uint assetId, uint quantity, uint price) constant returns (bool successful, uint index) {
+  function lookforMatch(OrderType orderType, uint assetId, uint quantity, uint price) constant returns (bool successful, bytes32 id) {
     uint iCount = listMarketOrders[assetId].length;
 
     for (uint i=0;i<iCount;i++) {
       MarketOrder mm = listMarketOrders[assetId][i];
       if (mm.orderType == orderType && mm.quantity == quantity && mm.price == price) {
-        return (true,i);
+        return (true,mm.orderId);
       }
     }
 
     return (false,0);
+  }
+
+  function getMarketOrderById(uint assetId, bytes32 orderId) internal returns (uint index, MarketOrder marketOrder) {
+    uint iCount = listMarketOrders[assetId].length;
+
+    for (uint i=0;i<iCount;i++) {
+      MarketOrder mm = listMarketOrders[assetId][i];
+      if (mm.orderId == orderId) {
+        return (i,mm);
+      }
+    }
+
+    MarketOrder memory x;
+    return (0,x);
   }
 }

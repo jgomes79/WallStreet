@@ -26,7 +26,8 @@ app.controller("wallStreetMarketController", ['$scope', '$location', '$http', '$
                   quantity: marketOrder[2],
                   price: marketOrder[3],
                   datetime: marketOrder[4],
-                  assetId: assetId
+                  assetId: assetId,
+                  orderId: marketOrder[5]
                 });
 
                 $scope.$apply();
@@ -46,7 +47,6 @@ app.controller("wallStreetMarketController", ['$scope', '$location', '$http', '$
     MarketService.postOrderToMarket($scope.newOrder.orderType,$scope.newOrder.assetId,$scope.newOrder.quantity,$scope.newOrder.price,{from: AccountService.getActiveAccount(), gas: 3000000});
   };
 
-  // TODO. Review. Not working
   $scope.executeOrder = function(index) {
     var wallStreetMarket = WallStreetMarket.deployed();
     var events = wallStreetMarket.allEvents('latest',function(error, log) {
@@ -72,7 +72,7 @@ app.controller("wallStreetMarketController", ['$scope', '$location', '$http', '$
       events.stopWatching();
     });
 
-    wallStreetMarket.executeOrder($scope.marketOrders[index].orderType, $scope.marketOrders[index].assetId, index, {from: AccountService.getActiveAccount(), gas: 3000000})
+    wallStreetMarket.executeOrder($scope.marketOrders[index].assetId, $scope.marketOrders[index].orderId, {from: AccountService.getActiveAccount(), gas: 3000000})
       .then(function (tx) {
         return web3.eth.getTransactionReceiptMined(tx);
       })

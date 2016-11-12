@@ -4,10 +4,6 @@ app.controller("wallStreetAssetsController", ['$scope', '$location', '$http', '$
   $scope.asset;
   $scope.newAsset;
 
-  event OnLogAssetExists(uint id);
-	event OnLogAssetAdded(AssetType assetType, string name, string symbol, uint id);
-  event OnLogAssetRemoved(uint id);
-
 	$scope.addAsset = function() {
     var wallStreetAssets = WallStreetAssets.deployed();
     var events = wallStreetAssets.allEvents('latest',function(error, log) {
@@ -23,6 +19,7 @@ app.controller("wallStreetAssetsController", ['$scope', '$location', '$http', '$
             break;
           default:
             break;
+        }
       }
       events.stopWatching();
     });
