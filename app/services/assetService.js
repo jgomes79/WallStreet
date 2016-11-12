@@ -1,13 +1,16 @@
 app.factory('AssetService', function() {
   var assetsCount;
   var assetsIds;
+  var assets;
 
   return {
     getAssetsCount: getAssetsCount,
     setAssetsCount: setAssetsCount,
     getAssetsIds: getAssetsIds,
     setAssetsIds: setAssetsIds,
-    getAssetDescription: getAssetDescription
+    getAssetTypeDescription: getAssetTypeDescription,
+    setAssets: setAssets,
+    getAssetNameById: getAssetNameById
   };
 
   function setAssetsCount(count) {
@@ -26,9 +29,21 @@ app.factory('AssetService', function() {
     return assetsIds;
   }
 
-  function getAssetDescription(id) {
+  function getAssetTypeDescription(id) {
     if (id == 0)  return 'Stock';
     if (id == 1)  return 'Option';
     if (id == 2)  return 'Future';
+  }
+
+  function setAssets(_assets) {
+    assets = _assets;
+  }
+
+  function getAssetNameById(id) {
+    for (var i=0;i<assetsCount;i++) {
+      if (assets[i].id == id) return assets[i].name;
+    }
+
+    return ""; 
   }
 });

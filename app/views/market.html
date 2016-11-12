@@ -15,7 +15,7 @@
       <tbody ng-repeat="marketOrder in marketOrders">
       <tr>
         <tr>
-          <td>{{marketOrder.assetId}}</td>
+          <td>{{getAssetNameById(marketOrder.assetId)}}</td>
           <td>{{getOrderTypeDescription(marketOrder.orderType)}}</td>
           <td>{{marketOrder.from}}</td>
           <td>{{marketOrder.quantity}}</td>

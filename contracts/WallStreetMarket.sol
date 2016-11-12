@@ -20,7 +20,7 @@ contract WallStreetMarket {
   address public wallStreetCoin;
 
   event OnOrderPostedToTheMarket(OrderType orderType, uint assetId, uint quantity, uint price);
-  event OnExecuteOrderDirectInTheMarket(OrderType orderType, uint assetId, uint quantity, uint price);
+  event OnExecuteOrder(OrderType orderType, uint assetId, uint quantity, uint price);
 
 	function WallStreetMarket(address _wallStreetCoin) {
     wallStreetCoin = _wallStreetCoin;
@@ -43,10 +43,10 @@ contract WallStreetMarket {
 
     if (orderType == OrderType.Buy) {
       // Check if the buyer has enough money
-      if (WallStreetCoinI(wallStreetCoin).getMoneyInAccount(tx.origin) < operationPrice) return false;
+      if (WallStreetCoinI(wallStreetCoin).getMoneyInAccount(msg.sender) < operationPrice) return false;
     } else {
       // Check if the seller has the asset amount
-      if (WallStreetCoinI(wallStreetCoin).getAssetInAccount(tx.origin,assetId) < quantity) return false;
+      if (WallStreetCoinI(wallStreetCoin).getAssetInAccount(msg.sender,assetId) < quantity) return false;
     }
 
     // Check for a match in the Market
@@ -68,7 +68,7 @@ contract WallStreetMarket {
     }
   }
 
-  function executeOrderDirectInTheMarket(OrderType orderType, uint assetId, uint quantity) returns (bool successful) {
+  function executeOrderDirectInTheMarket(OrderType orderType, uint assetId) returns (bool successful) {
     // Calculate the operation money amount
     uint iIndex = lookForBestPrice(orderType,assetId);
     executeOrder(orderType,assetId,iIndex);
@@ -82,27 +82,27 @@ contract WallStreetMarket {
 
     if (orderType == OrderType.Buy) {
       // Check if the buyer has enough money
-      if (WallStreetCoinI(wallStreetCoin).getMoneyInAccount(tx.origin) < operationPrice) return false;
+      if (WallStreetCoinI(wallStreetCoin).getMoneyInAccount(msg.sender) < operationPrice) return false;
 
       // TODO. Refactor this to do it dependent beetween results
-      if (!WallStreetCoinI(wallStreetCoin).sendMoneyBetweenAccounts(tx.origin,mm.from,operationPrice)) return false;
+      if (!WallStreetCoinI(wallStreetCoin).sendMoneyBetweenAccounts(msg.sender,mm.from,operationPrice)) return false;
 
-      if (!WallStreetCoinI(wallStreetCoin).moveAssetFromAccounts(mm.from,tx.origin,assetId,mm.quantity)) return false;
+      if (!WallStreetCoinI(wallStreetCoin).moveAssetFromAccounts(mm.from,msg.sender,assetId,mm.quantity)) return false;
 
     } else {
       // Check if the seller has the asset amount
-      if (WallStreetCoinI(wallStreetCoin).getAssetInAccount(tx.origin,assetId) < mm.quantity) return false;
+      if (WallStreetCoinI(wallStreetCoin).getAssetInAccount(msg.sender,assetId) < mm.quantity) return false;
 
       // TODO. Refactor this to do it dependent beetween results
-      if (!WallStreetCoinI(wallStreetCoin).sendMoneyBetweenAccounts(mm.from,tx.origin,operationPrice)) return false;
+      if (!WallStreetCoinI(wallStreetCoin).sendMoneyBetweenAccounts(mm.from,msg.sender,operationPrice)) return false;
 
-      if (!WallStreetCoinI(wallStreetCoin).moveAssetFromAccounts(tx.origin,mm.from,assetId,mm.quantity)) return false;
+      if (!WallStreetCoinI(wallStreetCoin).moveAssetFromAccounts(msg.sender,mm.from,assetId,mm.quantity)) return false;
     }
 
     // The operation is done. Remove it from market
     delete listMarketOrders[assetId][iIndex];
 
-    OnExecuteOrderDirectInTheMarket(orderType, assetId, mm.quantity, mm.price);
+    OnExecuteOrder(orderType, assetId, mm.quantity, mm.price);
 
     return true;
   }

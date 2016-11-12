@@ -2,7 +2,8 @@ app.controller("wallStreetAccountsController", [ '$scope', '$location', '$http',
 
   $scope.accounts = [];
   $scope.activeAccount;
-  $scope.contractAccount;
+  $scope.activeAccountBalance;
+  $scope.amountToAdd;
 
 	$scope.getAllAccounts = function() {
     initUtils(web3);
@@ -18,10 +19,34 @@ app.controller("wallStreetAccountsController", [ '$scope', '$location', '$http',
 			}
 
       $scope.accounts = accs;
-			$scope.contractAccount = accs[0];
-      $scope.activeAccount = $scope.contractAccount;
-      $scope.$apply();
+      $scope.activeAccount = accs[0];
+      $scope.getAccountBalance();
 	   });
+  };
+
+  $scope.getAccountBalance = function() {
+    WallStreetCoin.deployed().getMoneyInAccount.call($scope.activeAccount)
+      .then(function (balance) {
+        $scope.activeAccountBalance = balance;
+        $scope.$apply();
+      })
+      .catch(function (e) {
+        console.error(e);
+      });
+  };
+
+  $scope.depositMoney = function() {
+    WallStreetCoin.deployed().depositMoneyToAccount($scope.activeAccount,$scope.amountToAdd,{from:$scope.activeAccount, gas: 3000000})
+      .then(function (tx) {
+        return web3.eth.getTransactionReceiptMined(tx);
+      })
+      .then(function (receipt) {
+        console.log("balance changed");
+        $scope.getAccountBalance();
+      })
+      .catch(function (e) {
+        console.log("error changing balance: " + e);
+      });
   };
 
   $scope.loginWithAccount = function() {
@@ -31,7 +56,8 @@ app.controller("wallStreetAccountsController", [ '$scope', '$location', '$http',
   };
 
   $scope.accountChanged = function(account) {
-    
-  }
+    $scope.activeAccount = account;
+    $scope.getAccountBalance();
+  };
 
 }]);

@@ -1,9 +1,12 @@
 <div ng-init="getAllAccounts()">
   <div>
-    <hr>Contract Account: {{contractAccount}}</hr>
+    <hr>Active Account: {{activeAccount}}</hr>
+    <hr>Balance: {{activeAccountBalance}}</hr>
+    <hr>Deposit Money in Account: <input type="number" id="amount" placeholder="0" ng-model="amountToAdd"/><button class="btn btn-primary" id="addAmount" ng-click="depositMoney()">Deposit money</button></hr>
   </div>
+  <br>
   <div>
-    <select ng-model="activeAccount" ng-change="accountChanged(activeAccount)>
+    <select ng-model="activeAccount" ng-change="accountChanged(activeAccount)">
       <option ng-repeat="account in accounts" value="{{account}}">{{account}}</option>
     </select>
     <button id="setAccount" ng-click="loginWithAccount()">Select account</button>

@@ -3,6 +3,12 @@ app.controller("wallStreetMarketController", ['$scope', '$location', '$http', '$
   $scope.marketOrders = [];
   $scope.newOrder;
 
+  var wallStreetMarket = WallStreetMarket.deployed();
+  var events = wallStreetMarket.allEvents(function(error, log){
+  if (!error)
+    console.log(log);
+  });
+
   $scope.getAllMarketOrders = function() {
     $scope.marketOrders = [];
     var assetsIds = AssetService.getAssetsIds();
@@ -14,22 +20,23 @@ app.controller("wallStreetMarketController", ['$scope', '$location', '$http', '$
 	};
 
   function getIndividualAsset(assetId) {
-    WallStreetMarket.deployed().getMarketOrdersCountByAsset(assetId)
+    wallStreetMarket.getMarketOrdersCountByAsset.call(assetId)
       .then(function (count) {
         for (var j=0; j< count; j++) {
-          console.log("Found " + count + " orders for asset: " + assetId);
-          WallStreetMarket.deployed().getMarketOrderByAsset(assetId,j)
+          wallStreetMarket.getMarketOrderByAsset.call(assetId,j)
             .then(function (marketOrder) {
-              $scope.marketOrders.push({
-                orderType: marketOrder[0],
-                from: marketOrder[1],
-                quantity: marketOrder[2],
-                price: marketOrder[3],
-                datetime: marketOrder[4],
-                assetId: assetId
-              });
+              if (marketOrder[1] > 0) {
+                $scope.marketOrders.push({
+                  orderType: marketOrder[0],
+                  from: marketOrder[1],
+                  quantity: marketOrder[2],
+                  price: marketOrder[3],
+                  datetime: marketOrder[4],
+                  assetId: assetId
+                });
 
-              $scope.$apply();
+                $scope.$apply();
+              }
             })
             .catch(function (e) {
               console.error(e);
@@ -46,7 +53,7 @@ app.controller("wallStreetMarketController", ['$scope', '$location', '$http', '$
   };
 
   $scope.executeOrder = function(index) {
-    WallStreetMarket.deployed().executeOrder($scope.marketOrders[index].orderType, $scope.marketOrders[index].assetId, index, {from: AccountService.getActiveAccount(), gas: 3000000})
+    wallStreetMarket.executeOrder($scope.marketOrders[index].orderType, $scope.marketOrders[index].assetId, index, {from: AccountService.getActiveAccount(), gas: 3000000})
       .then(function (tx) {
         return web3.eth.getTransactionReceiptMined(tx);
       })
@@ -60,8 +67,27 @@ app.controller("wallStreetMarketController", ['$scope', '$location', '$http', '$
       });
   };
 
+  $scope.executeOrderDirectInTheMarket = function(orderType, assetId) {
+    wallStreetMarket.executeOrderDirectInTheMarket(orderType, assetId, {from: AccountService.getActiveAccount(), gas: 3000000})
+      .then(function (tx) {
+        return web3.eth.getTransactionReceiptMined(tx);
+      })
+      .then(function (receipt) {
+        console.log("Order posted to market propertly");
+        $scope.getAllMarketOrders();
+        $scope.$apply();
+      })
+      .catch(function (e) {
+        console.log("error posting order to market: " + e);
+      });
+  }
+
   $scope.getOrderTypeDescription = function(id) {
     return MarketService.getOrderTypeDescription(id);
+  };
+
+  $scope.getAssetNameById = function(id) {
+    return AssetService.getAssetNameById(id);
   };
 
 }]);

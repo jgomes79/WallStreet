@@ -69,6 +69,15 @@ var expectedExceptionPromise = function (action, gasToUse) {
 
 contract('WallStreet', function(accounts) {
 
+  it("should have initial balance", function() {
+    var wallStreet = WallStreetCoin.deployed();
+
+    return wallStreet.getMoneyInAccount.call(accounts[0])
+      .then(function(balance) {
+        assert.equal(balance.valueOf(), 100000000, "There's no 100000000 in initial balance");
+      })
+  });
+
   it("should start with 3 stocks", function() {
     var wallStreet = WallStreetAssets.deployed();
 

@@ -3,7 +3,6 @@ app.controller("wallStreetAssetsController", ['$scope', '$location', '$http', '$
   $scope.assets = [];
   $scope.asset;
   $scope.newAsset;
-  $scope.constants = app.Constants;
 
 	$scope.addAsset = function() {
     console.log()
@@ -55,9 +54,9 @@ app.controller("wallStreetAssetsController", ['$scope', '$location', '$http', '$
         AssetService.setAssetsCount(count.valueOf());
         if (count.valueOf() > 0) {
   			  for (var i = 0; i < count.valueOf(); i++) {
-  				  WallStreetAssets.deployed().assetIds(i)
+  				  WallStreetAssets.deployed().assetIds.call(i)
   						.then(function (id) {
-  						  return WallStreetAssets.deployed().assets(id.valueOf())
+  						  return WallStreetAssets.deployed().assets.call(id.valueOf())
   								.then(function (asset) {
   									$timeout(function () {
   										$scope.assets.push({
@@ -78,12 +77,16 @@ app.controller("wallStreetAssetsController", ['$scope', '$location', '$http', '$
   						});
   					}
           }
-			});
+			})
+      .catch(function (e) {
+        console.error(e);
+      });
       AssetService.setAssetsIds($scope.assetIds);
+      AssetService.setAssets($scope.assets);
 	};
 
-  $scope.getAssetDescription = function(id) {
-    return AssetService.getAssetDescription(id);
-  }
+  $scope.getAssetTypeDescription = function(id) {
+    return AssetService.getAssetTypeDescription(id);
+  };
 
 }]);
