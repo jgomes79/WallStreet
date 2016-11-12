@@ -18,7 +18,6 @@ module.exports = {
 
     "content/": "content/",
     "content/css/": "content/css/",
-    "content/images/": "content/images/",
 
     "content/css/app.css": "content/css/app.css",
     "content/css/bootstrap.min.css": "content/css/bootstrap.min.css",
