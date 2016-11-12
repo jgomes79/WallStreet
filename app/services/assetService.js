@@ -10,6 +10,7 @@ app.factory('AssetService', function() {
     setAssetsIds: setAssetsIds,
     getAssetTypeDescription: getAssetTypeDescription,
     setAssets: setAssets,
+    getAssets: getAssets,
     getAssetNameById: getAssetNameById
   };
 
@@ -39,11 +40,15 @@ app.factory('AssetService', function() {
     assets = _assets;
   }
 
+  function getAssets() {
+    return assets;
+  }
+
   function getAssetNameById(id) {
     for (var i=0;i<assetsCount;i++) {
       if (assets[i].id == id) return assets[i].name;
     }
 
-    return ""; 
+    return "";
   }
 });

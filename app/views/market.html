@@ -31,13 +31,18 @@
       <div class="form-group row">
         <label class="col-xs-2 col-form-label">Order Type</label>
         <div class="col-xs-10">
-          <input type="number" id="id" placeholder="0 Buy, 1 Sell" ng-model="newOrder.orderType"/>
+          <select ng-model="newOrder.orderType">
+            <option value =0>Buy</option>
+            <option value =1>Sell</option>
+         </select>
         </div>
       </div>
       <div class="form-group row">
         <label class="col-xs-2 col-form-label">AssetId</label>
         <div class="col-xs-10">
-          <input type="number" id="name" placeholder="1" ng-model="newOrder.assetId"/>
+          <select ng-model="newOrder.assetId">
+            <option ng-repeat="asset in getAssets()" value="{{asset.id}}">{{asset.name}}</option>
+          </select>
         </div>
       </div>
       <div class="form-group row">

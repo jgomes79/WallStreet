@@ -9,11 +9,11 @@ app.controller("wallStreetMarketController", ['$scope', '$location', '$http', '$
     var assetsLength = AssetService.getAssetsCount();
 
     for (var i = 0; i < assetsLength; i++) {
-        getIndividualAsset(assetsIds[i]);
+        getMarketOrdersByAsset(assetsIds[i]);
   	}
 	};
 
-  function getIndividualAsset(assetId) {
+  function getMarketOrdersByAsset(assetId) {
     WallStreetMarket.deployed().getMarketOrdersCountByAsset.call(assetId)
       .then(function (count) {
         for (var j=0; j< count; j++) {
@@ -129,5 +129,9 @@ app.controller("wallStreetMarketController", ['$scope', '$location', '$http', '$
   $scope.getAssetNameById = function(id) {
     return AssetService.getAssetNameById(id);
   };
+
+  $scope.getAssets = function() {
+    return AssetService.getAssets();
+  }
 
 }]);
