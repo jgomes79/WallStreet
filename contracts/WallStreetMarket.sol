@@ -1,20 +1,9 @@
 pragma solidity ^0.4.2;
 
 import "WallStreetCoinI.sol";
+import "WallStreetMarketI.sol";
 
-contract WallStreetMarket {
-  // Operations: Buy or Sell
-  enum OrderType { Buy, Sell }
-
-  // Struct to define the market orders
-  struct MarketOrder {
-    OrderType orderType;
-    address from;
-    uint quantity;
-    uint price;
-    uint datetime;
-    bytes32 orderId;
-  }
+contract WallStreetMarket is WallStreetMarketI {
 
   // Mapping AssetId => MarketOrders array
   mapping (uint => MarketOrder[]) public listMarketOrders;
@@ -22,7 +11,6 @@ contract WallStreetMarket {
   address public wallStreetCoin;
 
   event OnLogNotEnoughMoney();
-  event OnLogNotEnoughAssets();
   event OnLogOrderPostedToTheMarket(OrderType orderType, uint assetId, uint quantity, uint price, bytes32 orderId);
   event OnLogExecuteOrder(OrderType orderType, uint assetId, uint quantity, uint price, bytes32 orderId);
 
@@ -31,12 +19,17 @@ contract WallStreetMarket {
 	}
 
   function getMarketOrdersCountByAsset(uint assetId) constant returns (uint count) {
-    return listMarketOrders[assetId].length;
+    uint activeOrders = 0;
+    for (uint i=0;i<listMarketOrders[assetId].length;i++) {
+      if (listMarketOrders[assetId][i].active == true) activeOrders++;
+    }
+
+    return activeOrders;
   }
 
-  function getMarketOrderByAsset(uint assetId, uint index) constant returns (OrderType orderType, address from, uint quantity, uint price, uint datetime, bytes32 orderId) {
+  function getMarketOrderByAsset(uint assetId, uint index) constant returns (OrderType orderType, address from, uint quantity, uint price, uint datetime, bool active, bytes32 orderId) {
     MarketOrder mo = listMarketOrders[assetId][index];
-    return (mo.orderType,mo.from,mo.quantity,mo.price,mo.datetime,mo.orderId);
+    return (mo.orderType,mo.from,mo.quantity,mo.price,mo.datetime,mo.active,mo.orderId);
   }
 
   // Insert a new order in the market. If the order find a match (example I want to buy an asset for 5 and there's a sell
@@ -49,12 +42,6 @@ contract WallStreetMarket {
       // Check if the buyer has enough money
       if (WallStreetCoinI(wallStreetCoin).getMoneyInAccount(msg.sender) < operationPrice) {
         OnLogNotEnoughMoney();
-        return false;
-      }
-    } else {
-      // Check if the seller has the asset amount
-      if (WallStreetCoinI(wallStreetCoin).getAssetInAccount(msg.sender,assetId) < quantity) {
-        OnLogNotEnoughAssets();
         return false;
       }
     }
@@ -73,6 +60,7 @@ contract WallStreetMarket {
                                 quantity: quantity,
                                 price: price,
                                 datetime: now,
+                                active: true,
                                 orderId: orderId}));
 
       // Notify the order
@@ -101,25 +89,12 @@ contract WallStreetMarket {
 
       if (!WallStreetCoinI(wallStreetCoin).sendMoneyBetweenAccounts(msg.sender,mm.from,operationPrice)) return false;
 
-      if (!WallStreetCoinI(wallStreetCoin).moveAssetFromAccounts(mm.from,msg.sender,assetId,mm.quantity)) return false;
-
-    } else {
-      // Check if the seller has the asset amount
-      if (WallStreetCoinI(wallStreetCoin).getAssetInAccount(msg.sender,assetId) < mm.quantity) {
-        OnLogNotEnoughAssets();
-        return false;
-      }
-
-      if (!WallStreetCoinI(wallStreetCoin).sendMoneyBetweenAccounts(mm.from,msg.sender,operationPrice)) return false;
-
-      if (!WallStreetCoinI(wallStreetCoin).moveAssetFromAccounts(msg.sender,mm.from,assetId,mm.quantity)) return false;
     }
 
     OnLogExecuteOrder(mm.orderType, assetId, mm.quantity, mm.price, mm.orderId);
 
     // The operation is done. Remove it from market
-    // TODO. Clean array from empty positions to avoid 0x000000 registries
-    delete listMarketOrders[assetId][index];
+    listMarketOrders[assetId][index].active = false;
 
     return true;
   }
@@ -131,18 +106,20 @@ contract WallStreetMarket {
 
     for (uint i=0;i<iCount;i++) {
       MarketOrder mm = listMarketOrders[assetId][i];
-      uint mmPrice = mm.price * mm.quantity;
-      if (i==0) iBestPrice = mmPrice;
+      if (mm.active == true) {
+        uint mmPrice = mm.price * mm.quantity;
+        if (i==0) iBestPrice = mmPrice;
 
-      if (orderType == OrderType.Buy) {
-        if (mmPrice < iBestPrice) {
-          iBestPrice = mmPrice;
-          orderId = mm.orderId;
-        }
-      } else {
-        if (mmPrice > iBestPrice) {
-          iBestPrice = mmPrice;
-          orderId = mm.orderId;
+        if (orderType == OrderType.Buy) {
+          if (mmPrice < iBestPrice) {
+            iBestPrice = mmPrice;
+            orderId = mm.orderId;
+          }
+        } else {
+          if (mmPrice > iBestPrice) {
+            iBestPrice = mmPrice;
+            orderId = mm.orderId;
+          }
         }
       }
     }
@@ -155,7 +132,7 @@ contract WallStreetMarket {
 
     for (uint i=0;i<iCount;i++) {
       MarketOrder mm = listMarketOrders[assetId][i];
-      if (mm.orderType == orderType && mm.quantity == quantity && mm.price == price) {
+      if (mm.orderType == orderType && mm.quantity == quantity && mm.price == price && mm.active == true) {
         return (true,mm.orderId);
       }
     }

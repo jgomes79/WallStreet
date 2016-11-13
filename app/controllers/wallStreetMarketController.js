@@ -19,7 +19,7 @@ app.controller("wallStreetMarketController", ['$scope', '$location', '$http', '$
         for (var j=0; j< count; j++) {
           WallStreetMarket.deployed().getMarketOrderByAsset.call(assetId,j)
             .then(function (marketOrder) {
-              if (marketOrder[1] > 0) {
+              if (marketOrder[5] == true) {
                 $scope.marketOrders.push({
                   orderType: marketOrder[0],
                   from: marketOrder[1],
@@ -27,7 +27,8 @@ app.controller("wallStreetMarketController", ['$scope', '$location', '$http', '$
                   price: marketOrder[3],
                   datetime: marketOrder[4],
                   assetId: assetId,
-                  orderId: marketOrder[5]
+                  active: marketOrder[5],
+                  orderId: marketOrder[6]
                 });
 
                 $scope.$apply();

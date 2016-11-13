@@ -3,6 +3,7 @@ app.controller("wallStreetAssetsController", ['$scope', '$location', '$http', '$
   $scope.assets = [];
   $scope.asset;
   $scope.newAsset;
+  $scope.assetIdToDelete;
 
 	$scope.addAsset = function() {
     var wallStreetAssets = WallStreetAssets.deployed();
@@ -36,18 +37,27 @@ app.controller("wallStreetAssetsController", ['$scope', '$location', '$http', '$
       });
 	};
 
-  $scope.removeAsset = function(id) {
+  $scope.removeAsset = function() {
     var wallStreetAssets = WallStreetAssets.deployed();
     var events = wallStreetAssets.allEvents('latest',function(error, log) {
       if (!error) {
+        switch (log.event) {
+          case 'OnLogCantRemoveAssetBecauseOrdersPending':
+            Notification("There's orders pending for this asset. Please, execute them first and remove the asset later");
+            break;
+          case 'OnLogAssetRemoved':
           Notification("Asset removed");
           $scope.getAllAssets();
           $scope.$apply();
+            break;
+          default:
+            break;
+        }
       }
       events.stopWatching();
     });
 
-    wallStreetAssets.removeAsset(id)
+    wallStreetAssets.removeAsset($scope.assetIdToDelete, {from: AccountService.getActiveAccount(), gas: 3000000})
       .then(function (tx) {
         return web3.eth.getTransactionReceiptMined(tx);
       })
@@ -57,13 +67,14 @@ app.controller("wallStreetAssetsController", ['$scope', '$location', '$http', '$
   };
 
   $scope.getAsset = function(id) {
-    WallStreetAssets.deployed().getAsset(id).call()
-      .then(function (assetType,name,symbol) {
+    WallStreetAssets.deployed().getAsset.call(id)
+      .then(function (assetType,name,symbol,active) {
         $scope.asset = {
                           id: id,
                           name: name,
                           symbol: symbol,
-                          assetType: assetType
+                          assetType: assetType,
+                          active: active
                        };
           })
       .catch(function (e) {
@@ -85,13 +96,15 @@ app.controller("wallStreetAssetsController", ['$scope', '$location', '$http', '$
   						  return WallStreetAssets.deployed().assets.call(id.valueOf())
   								.then(function (asset) {
   									$timeout(function () {
-  										$scope.assets.push({
-                        id: id.valueOf(),
-  											name: asset[1],
-  											symbol: asset[2],
-                        assetType: asset[0]
-  										});
-                      $scope.assetIds.push(id.valueOf());
+                      if (asset[3] == true) {
+                        $scope.assets.push({
+                          id: id.valueOf(),
+                          name: asset[1],
+                          symbol: asset[2],
+                          assetType: asset[0]
+                        });
+                        $scope.assetIds.push(id.valueOf());
+                      }
   									});
   								})
   								.catch(function (e) {

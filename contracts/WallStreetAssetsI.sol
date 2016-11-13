@@ -9,6 +9,7 @@ contract WallStreetAssetsI is Owned {
   		AssetType assetType;
       string name;
       string symbol;
+      bool active;
   		uint id;
   }
 
@@ -16,7 +17,7 @@ contract WallStreetAssetsI is Owned {
 
   function removeAsset(uint id) fromOwner returns (bool successful);
 
-  function getAsset(uint id) constant returns (AssetType assetType, string name, string symbol);
+  function getAsset(uint id) constant returns (AssetType assetType, string name, string symbol, bool active);
 
   function getAssetsCount() constant returns (uint count);
 }
