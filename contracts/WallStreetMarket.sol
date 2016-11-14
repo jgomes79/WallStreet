@@ -2,6 +2,7 @@ pragma solidity ^0.4.2;
 
 import "WallStreetCoinI.sol";
 import "WallStreetMarketI.sol";
+import "WallStreetListAssetsI.sol";
 
 contract WallStreetMarket is WallStreetMarketI {
 
@@ -9,22 +10,20 @@ contract WallStreetMarket is WallStreetMarketI {
   mapping (uint => MarketOrder[]) public listMarketOrders;
 
   address public wallStreetCoin;
+  address public wallStreetListAssets;
 
   event OnLogNotEnoughMoney();
+  event OnLogNotEnoughAssets();
   event OnLogOrderPostedToTheMarket(OrderType orderType, uint assetId, uint quantity, uint price, bytes32 orderId);
   event OnLogExecuteOrder(OrderType orderType, uint assetId, uint quantity, uint price, bytes32 orderId);
 
-	function WallStreetMarket(address _wallStreetCoin) {
+	function WallStreetMarket(address _wallStreetCoin, address _wallStreetListAssets) {
     wallStreetCoin = _wallStreetCoin;
-	}
+    wallStreetListAssets = _wallStreetListAssets;
+  }
 
   function getMarketOrdersCountByAsset(uint assetId) constant returns (uint count) {
-    uint activeOrders = 0;
-    for (uint i=0;i<listMarketOrders[assetId].length;i++) {
-      if (listMarketOrders[assetId][i].active == true) activeOrders++;
-    }
-
-    return activeOrders;
+    return listMarketOrders[assetId].length;
   }
 
   function getMarketOrderByAsset(uint assetId, uint index) constant returns (OrderType orderType, address from, uint quantity, uint price, uint datetime, bool active, bytes32 orderId) {
@@ -42,6 +41,12 @@ contract WallStreetMarket is WallStreetMarketI {
       // Check if the buyer has enough money
       if (WallStreetCoinI(wallStreetCoin).getMoneyInAccount(msg.sender) < operationPrice) {
         OnLogNotEnoughMoney();
+        return false;
+      }
+    } else {
+      // Check if the seller has enough assets
+      if (WallStreetListAssetsI(wallStreetListAssets).getAssetInAccount(msg.sender,assetId) < quantity) {
+        OnLogNotEnoughAssets();
         return false;
       }
     }
@@ -87,8 +92,27 @@ contract WallStreetMarket is WallStreetMarketI {
         return false;
       }
 
-      if (!WallStreetCoinI(wallStreetCoin).sendMoneyBetweenAccounts(msg.sender,mm.from,operationPrice)) return false;
+      if (WallStreetCoinI(wallStreetCoin).sendMoneyBetweenAccounts(msg.sender,mm.from,operationPrice) == false) {
+          return false;
+      }
 
+      if (WallStreetListAssetsI(wallStreetListAssets).moveAssetFromAccounts(mm.from,msg.sender,assetId,mm.quantity) == false) {
+          return false;
+      }
+    } else {
+      // Check if the seller has the asset amount
+      if (WallStreetListAssetsI(wallStreetListAssets).getAssetInAccount(msg.sender,assetId) < mm.quantity) {
+        OnLogNotEnoughAssets();
+        return false;
+      }
+
+      if (WallStreetCoinI(wallStreetCoin).sendMoneyBetweenAccounts(mm.from,msg.sender,operationPrice) == false) {
+        return false;
+      }
+
+      if (WallStreetListAssetsI(wallStreetListAssets).moveAssetFromAccounts(msg.sender,mm.from,assetId,mm.quantity) == false) {
+        return false;
+      }
     }
 
     OnLogExecuteOrder(mm.orderType, assetId, mm.quantity, mm.price, mm.orderId);

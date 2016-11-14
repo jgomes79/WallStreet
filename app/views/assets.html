@@ -46,10 +46,15 @@
         <input class="form-control" type="text" id="symbol" placeholder="Symbol" ng-model="newAsset.symbol"/>
       </div>
     </div>
+
     <div class="form-group row">
-      <label class="col-xs-2 col-form-label">AssetType</label>
+      <label class="col-xs-2 col-form-label">Type</label>
       <div class="col-xs-10">
-        <input class="form-control" type="number" id="assetType" placeholder="0" ng-model="newAsset.assetType"/>
+        <select ng-model="newAsset.assetType">
+          <option value =0>Stock</option>
+          <option value =1>Option</option>
+          <option value =2>Future</option>
+       </select>
       </div>
     </div>
     <div class="form-group row">

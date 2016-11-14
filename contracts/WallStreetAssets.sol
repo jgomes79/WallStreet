@@ -2,6 +2,7 @@ pragma solidity ^0.4.2;
 
 import "WallStreetAssetsI.sol";
 import "WallStreetMarketI.sol";
+import "WallStreetListAssetsI.sol";
 
 contract WallStreetAssets is WallStreetAssetsI {
 
@@ -9,14 +10,16 @@ contract WallStreetAssets is WallStreetAssetsI {
   uint[] public assetIds;
 
   address public wallStreetMarket;
+  address public wallStreetListAssets;
 
   event OnLogAssetExists(uint id);
 	event OnLogAssetAdded(AssetType assetType, string name, string symbol, uint id);
   event OnLogCantRemoveAssetBecauseOrdersPending(uint id);
   event OnLogAssetRemoved(uint id);
 
-	function WallStreetAssets(address _wallStreetMarket) {
+	function WallStreetAssets(address _wallStreetMarket, address _wallStreetListAssets) {
     wallStreetMarket = _wallStreetMarket;
+    wallStreetListAssets = _wallStreetListAssets;
 
     addAsset(AssetType.Stock,"Apple","APPL",1);
     addAsset(AssetType.Stock,"Google","GOGGL",2);
@@ -37,6 +40,8 @@ contract WallStreetAssets is WallStreetAssetsI {
                   active: true,
                   id: id});
     assetIds.push(id);
+
+    WallStreetListAssetsI(wallStreetListAssets).addNewAsset(id,10000);
 
     OnLogAssetAdded(assetType,name,symbol,id);
 

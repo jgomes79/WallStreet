@@ -11,7 +11,7 @@ app.controller("wallStreetAssetsController", ['$scope', '$location', '$http', '$
       if (!error) {
         switch (log.event) {
           case 'OnLogAssetExists':
-            Notification("There's an asset with the same id");
+            Notification("There's an asset with this id in the chain. Please, change it and try again");
             break;
           case 'OnLogAssetAdded':
             Notification("Asset added");
@@ -46,9 +46,9 @@ app.controller("wallStreetAssetsController", ['$scope', '$location', '$http', '$
             Notification("There's orders pending for this asset. Please, execute them first and remove the asset later");
             break;
           case 'OnLogAssetRemoved':
-          Notification("Asset removed");
-          $scope.getAllAssets();
-          $scope.$apply();
+            Notification("Asset removed");
+            $scope.getAllAssets();
+            $scope.$apply();
             break;
           default:
             break;

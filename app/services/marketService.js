@@ -17,10 +17,10 @@ app.factory('MarketService', function(Notification) {
             Notification("Not assets to sell");
             break;
           case 'OnLogOrderPostedToTheMarket':
-            Notification("Your order has been posted to the market propertly");
+            Notification("Your order has been posted to the market propertly. Please, refresh the page to see it");
             break;
           case 'OnLogExecuteOrder':
-            Notification("Your order has been executed in the market");
+            Notification("Your order has been executed in the market. Please, refresh the page to see it");
             break;
           default:
             break;
