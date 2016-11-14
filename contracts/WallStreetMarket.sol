@@ -1,6 +1,6 @@
 pragma solidity ^0.4.2;
 
-import "WallStreetCoinI.sol";
+import "Token.sol";
 import "WallStreetMarketI.sol";
 import "WallStreetListAssetsI.sol";
 
@@ -9,7 +9,7 @@ contract WallStreetMarket is WallStreetMarketI {
   // Mapping AssetId => MarketOrders array
   mapping (uint => MarketOrder[]) public listMarketOrders;
 
-  address public wallStreetCoin;
+  address public wallStreetToken;
   address public wallStreetListAssets;
 
   event OnLogNotEnoughMoney();
@@ -17,8 +17,8 @@ contract WallStreetMarket is WallStreetMarketI {
   event OnLogOrderPostedToTheMarket(OrderType orderType, uint assetId, uint quantity, uint price, bytes32 orderId);
   event OnLogExecuteOrder(OrderType orderType, uint assetId, uint quantity, uint price, bytes32 orderId);
 
-	function WallStreetMarket(address _wallStreetCoin, address _wallStreetListAssets) {
-    wallStreetCoin = _wallStreetCoin;
+	function WallStreetMarket(address _wallStreetToken, address _wallStreetListAssets) {
+    wallStreetToken = _wallStreetToken;
     wallStreetListAssets = _wallStreetListAssets;
   }
 
@@ -39,7 +39,7 @@ contract WallStreetMarket is WallStreetMarketI {
 
     if (orderType == OrderType.Buy) {
       // Check if the buyer has enough money
-      if (WallStreetCoinI(wallStreetCoin).getMoneyInAccount(msg.sender) < operationPrice) {
+      if (Token(wallStreetToken).balanceOf(msg.sender) < operationPrice) {
         OnLogNotEnoughMoney();
         return false;
       }
@@ -87,12 +87,12 @@ contract WallStreetMarket is WallStreetMarketI {
 
     if (mm.orderType == OrderType.Buy) {
       // Check if the buyer has enough money
-      if (WallStreetCoinI(wallStreetCoin).getMoneyInAccount(msg.sender) < operationPrice) {
+      if (Token(wallStreetToken).balanceOf(msg.sender) < operationPrice) {
         OnLogNotEnoughMoney();
         return false;
       }
 
-      if (WallStreetCoinI(wallStreetCoin).sendMoneyBetweenAccounts(msg.sender,mm.from,operationPrice) == false) {
+      if (Token(wallStreetToken).transferFrom(msg.sender,mm.from,operationPrice) == false) {
           return false;
       }
 
@@ -106,7 +106,7 @@ contract WallStreetMarket is WallStreetMarketI {
         return false;
       }
 
-      if (WallStreetCoinI(wallStreetCoin).sendMoneyBetweenAccounts(mm.from,msg.sender,operationPrice) == false) {
+      if (Token(wallStreetToken).transferFrom(mm.from,msg.sender,operationPrice) == false) {
         return false;
       }
 

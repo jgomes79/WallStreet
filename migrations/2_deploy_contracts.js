@@ -1,20 +1,13 @@
 module.exports = function(deployer) {
 
-  deployer.deploy(WallStreetCoin)
+  deployer.deploy(WallStreetToken,1000000000,"WSCoin",0,"WWSS")
   	.then(function() {
       return deployer.deploy(WallStreetListAssets)
         .then(function() {
-          return deployer.deploy(WallStreetMarket, WallStreetCoin.address, WallStreetListAssets.address)
+          return deployer.deploy(WallStreetMarket, WallStreetToken.address, WallStreetListAssets.address)
             .then(function() {
               return deployer.deploy(WallStreetAssets, WallStreetMarket.address, WallStreetListAssets.address);
             })
         })
   	});
-
-/*
-  deployer.deploy(WallStreetCoin);
-  deployer.deploy(WallStreetListAssets);
-  deployer.deploy(WallStreetMarket, WallStreetCoin.address, WallStreetListAssets.address);
-  deployer.deploy(WallStreetAssets, WallStreetMarket.address, WallStreetListAssets.address);
-*/
 };

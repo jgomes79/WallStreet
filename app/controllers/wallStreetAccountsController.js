@@ -1,6 +1,7 @@
 app.controller("wallStreetAccountsController", [ '$scope', '$location', '$http', '$q', '$window', '$timeout', 'AccountService','Notification', function($scope, $location, $http, $q, $window, $timeout, AccountService, Notification) {
 
   $scope.accounts = [];
+  $scope.contractAccount;
   $scope.activeAccount;
   $scope.activeAccountBalance;
   $scope.amountToAdd;
@@ -20,12 +21,13 @@ app.controller("wallStreetAccountsController", [ '$scope', '$location', '$http',
 
       $scope.accounts = accs;
       $scope.activeAccount = accs[0];
+      $scope.contractAccount = accs[0];
       $scope.getAccountBalance();
 	   });
   };
 
   $scope.getAccountBalance = function() {
-    WallStreetCoin.deployed().getMoneyInAccount.call($scope.activeAccount)
+    WallStreetToken.deployed().balanceOf.call($scope.activeAccount)
       .then(function (balance) {
         $scope.activeAccountBalance = balance;
         $scope.$apply();
@@ -36,18 +38,18 @@ app.controller("wallStreetAccountsController", [ '$scope', '$location', '$http',
   };
 
   $scope.depositMoney = function() {
-    var wallStreetCoin = WallStreetCoin.deployed();
-    var events = wallStreetCoin.allEvents('latest',function(error, log) {
+    var wallStreetToken = WallStreetToken.deployed();
+    var events = wallStreetToken.allEvents('latest',function(error, log) {
       if (!error) {
         var args = log.args;
-        var amount = args.amount;
+        var amount = args._value;
         Notification("Added " + amount + " to account");
         $scope.getAccountBalance();
       }
       events.stopWatching();
     });
 
-    wallStreetCoin.depositMoneyToAccount($scope.activeAccount,$scope.amountToAdd,{from:$scope.activeAccount, gas: 3000000})
+    wallStreetToken.transfer($scope.activeAccount,$scope.amountToAdd,{from:$scope.contractAccount, gas: 3000000})
       .then(function (tx) {
         return web3.eth.getTransactionReceiptMined(tx);
       })
