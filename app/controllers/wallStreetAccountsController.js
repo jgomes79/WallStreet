@@ -6,24 +6,40 @@ app.controller("wallStreetAccountsController", [ '$scope', '$location', '$http',
   $scope.activeAccountBalance;
   $scope.amountToAdd;
 
-	$scope.getAllAccounts = function() {
+  $scope.$on('$viewContentLoaded', function(){
     initUtils(web3);
+
+    if(typeof mist !== 'undefined') {
+      createMistMenu(mist,$location);
+    }
+  });
+
+	$scope.getAllAccounts = function() {
 		web3.eth.getAccounts(function(err, accs) {
-			if (err != null) {
+      if (err != null) {
 			  console.log("There was an error fetching your accounts.");
 			  return;
 			}
 
-			if (accs.length == 0) {
-			  console.log("Couldn't get any accounts! Make sure your Ethereum client is configured correctly.");
-			  return;
-			}
-
-      $scope.accounts = accs;
-      $scope.activeAccount = accs[0];
-      $scope.contractAccount = accs[0];
-      $scope.getAccountBalance();
-	   });
+      if (accs && accs.length > 0) {
+        $scope.accounts = accs;
+        $scope.activeAccount = accs[0];
+        $scope.contractAccount = accs[0];
+        $scope.getAccountBalance();
+      } else {
+        if(typeof mist !== 'undefined') {
+          // If there's no account and we are using Mist, create one in mist
+          mist.requestAccount(function(e, account) {
+            if(!e) {
+              $scope.accounts = account;
+              $scope.activeAccount = account;
+              $scope.contractAccount = account;
+              $scope.getAccountBalance();
+            }
+          });
+        }
+      }
+    });
   };
 
   $scope.getAccountBalance = function() {

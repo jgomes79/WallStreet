@@ -25,3 +25,17 @@ var initUtils = function (web3) {
     };
 
 };
+
+var createMistMenu = function(mist,location) {
+  // Just for testing Mist integration
+  mist.setBadge("WallStreet");
+
+  mist.menu.add("WallStreet", {
+    name: 'Go to Market',
+    badge: 50,
+    position: 1,
+    selected: true
+  }, function() {
+      location.path("/market");
+  });
+}

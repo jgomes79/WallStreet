@@ -20,7 +20,7 @@ contract WallStreetToken is StandardToken {
     string public name;                   //fancy name: eg Simon Bucks
     uint8 public decimals;                //How many decimals to show. ie. There could 1000 base units with 3 decimals. Meaning 0.980 SBX = 980 base units. It's like comparing 1 wei to 1 ether.
     string public symbol;                 //An identifier: eg SBX
-    string public version = 'H0.1';       //human 0.1 standard. Just an arbitrary versioning scheme.
+    string public version = 'WS0.1';       //human 0.1 standard. Just an arbitrary versioning scheme.
 
     function WallStreetToken(
         uint256 _initialAmount,
@@ -28,7 +28,7 @@ contract WallStreetToken is StandardToken {
         uint8 _decimalUnits,
         string _tokenSymbol
         ) {
-        balances[msg.sender] = _initialAmount;               // Give the creator all initial tokens
+        balances[tx.origin] = _initialAmount;                // Give the creator all initial tokens
         totalSupply = _initialAmount;                        // Update total supply
         name = _tokenName;                                   // Set the name for display purposes
         decimals = _decimalUnits;                            // Amount of decimals for display purposes
