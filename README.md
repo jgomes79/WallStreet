@@ -29,4 +29,4 @@ Detected improvements:
 
 1. Now the asset price is set in each operation. It will be an improvment to connect with an external system to get assets price (¿Oraclize?)
 2. Restrict each asset to be traded in a limited timetable
-
+3. Improve Mist integration
