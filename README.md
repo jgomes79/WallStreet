@@ -1,8 +1,9 @@
 # WallStreet
 
-Project created for B9 Week4 Project. It's a little stock market simulator
+Project created for B9 Week4 Project. It's a little stock market simulator.
 
 How does it works:
+
 1. WallStreetToken
     - This project uses a custom WallStreetToken (ERC20 compatible)
     - The contract owner has 1000000000 tokens when he deploys the contract
