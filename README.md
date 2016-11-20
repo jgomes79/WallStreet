@@ -19,4 +19,5 @@ How does it works:
     - Keeps balance of the assets you own
 
 Detected improvements:
+
 1. Connect with an external system to get assets price
